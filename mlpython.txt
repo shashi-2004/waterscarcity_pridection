@@ -1,0 +1,70 @@
+from sklearn.ensemble import RandomForestRegressor
+import pandas as pd
+
+df = pd.read_excel("hyd_data (2).xlsx", skiprows=2)
+print("data we collected")
+print(df)
+print("\nColumn Names:", df.columns.tolist())
+print("\nData Types:", df.dtypes)
+df['Scarcity%'] = (df['Demand (MGD)']-df['Available (MGD)'])/df['Demand (MGD)'] * 100
+print("Scarcity% added")
+print(df)
+
+X = df[['Rainfall (mm)','Population (M)','Demand (MGD)','Reservoir Levels (TMC)', 'Groundwater Usage (MGD)', 'Temperature (°C)']]
+y = df['Scarcity%']
+
+model = RandomForestRegressor(n_estimators = 100)
+model.fit(X,y)
+
+future = [[840,5.9,340,2.9,95,27.4]]  
+prediction = model.predict(future)
+print(f"\n2025 Hyderabad Scarcity Prediction: {prediction[0]:.2f}%")
+
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Load data
+
+
+# Set up figure with 4 subplots
+plt.figure(figsize=(15, 10))
+
+# 1. Scarcity % vs Year (Line Graph)
+plt.subplot(2, 2, 1)
+plt.plot(df['Year'], df['Scarcity%'], marker='o', color='b', label='Scarcity %')
+plt.title('Scarcity % Over Years (2005-2024)')
+plt.xlabel('Year')
+plt.ylabel('Scarcity %')
+plt.grid(True)
+plt.legend()
+
+# 2. Rainfall vs Scarcity % (Scatter Plot)
+plt.subplot(2, 2, 2)
+plt.scatter(df['Rainfall (mm)'], df['Scarcity%'], color='g', label='Rainfall vs Scarcity')
+plt.title('Rainfall vs Scarcity %')
+plt.xlabel('Rainfall (mm)')
+plt.ylabel('Scarcity %')
+plt.grid(True)
+plt.legend()
+
+# 3. Temperature vs Reservoir Levels (Scatter Plot)
+plt.subplot(2, 2, 3)
+plt.scatter(df['Temperature (°C)'], df['Reservoir Levels (TMC)'], color='r', label='Temp vs Reservoir')
+plt.title('Temperature vs Reservoir Levels')
+plt.xlabel('Temperature (°C)')
+plt.ylabel('Reservoir Levels (TMC)')
+plt.grid(True)
+plt.legend()
+
+# 4. Groundwater Usage vs Population (Line Graph)
+plt.subplot(2, 2, 4)
+plt.plot(df['Population (M)'], df['Groundwater Usage (MGD)'], marker='o', color='purple', label='GW vs Population')
+plt.title('Groundwater Usage vs Population')
+plt.xlabel('Population (M)')
+plt.ylabel('Groundwater Usage (MGD)')
+plt.grid(True)
+plt.legend()
+
+# Adjust layout and show
+plt.tight_layout()
+plt.show()
