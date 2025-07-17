@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Water Scarcity Prediction</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            font-family: 'Arial', sans-serif;
+            color: #333;
+        }
+        .container {
+            margin-top: 50px;
+            max-width: 700px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+        h1 {
+            color: #007bff;
+            text-align: center;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .form-group label {
+            font-weight: bold;
+            color: #0056b3;
+        }
+        .form-group input, .form-group select {
+            border: 2px solid #007bff;
+            border-radius: 8px;
+            padding: 10px;
+            transition: border-color 0.3s ease;
+        }
+        .form-group input:focus, .form-group select:focus {
+            border-color: #0056b3;
+            box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
+            outline: none;
+        }
+        .form-group i {
+            position: absolute;
+            left: 15px;
+            top: 40px;
+            color: #007bff;
+        }
+        .form-group input[type="number"], .form-group select {
+            padding-left: 40px;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+            padding: 12px;
+            font-size: 1.1em;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        #result {
+            margin-top: 20px;
+            font-size: 1.2em;
+            text-align: center;
+            background: linear-gradient(45deg, #007bff, #00c4ff);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .checkbox-label {
+            font-weight: normal;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-tint"></i> Water Scarcity Prediction</h1>
+        <form id="predictionForm">
+            <div class="form-group">
+                <label for="city">City Name:</label>
+                <i class="fas fa-city"></i>
+                <select class="form-control" id="city" required>
+                    <option value="">Select City</option>
+                    <option value="Hyderabad">Hyderabad</option>
+                    <option value="Chennai">Chennai</option>
+                    <option value="Bangalore">Bangalore</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="rainfall">Rainfall (mm):</label>
+                <i class="fas fa-cloud-rain"></i>
+                <input type="number" class="form-control" id="rainfall" required placeholder="Enter Rainfall (mm)">
+            </div>
+            <div class="form-group">
+                <label for="population">Population (M):</label>
+                <i class="fas fa-users"></i>
+                <input type="number" class="form-control" id="population" step="0.1" required placeholder="Enter Population (in millions)">
+            </div>
+            <div class="form-group">
+                <label for="demand">Demand (MGD):</label>
+                <i class="fas fa-water"></i>
+                <input type="number" class="form-control" id="demand" required placeholder="Enter Demand (MGD)">
+            </div>
+            <div class="form-group">
+                <label for="reservoir">Reservoir Levels (TMC):</label>
+                <i class="fas fa-dam"></i>
+                <input type="number" class="form-control" id="reservoir" step="0.1" required placeholder="Enter Reservoir Levels (TMC)">
+            </div>
+            <div class="form-group">
+                <label for="groundwater">Groundwater Usage (MGD):</label>
+                <i class="fas fa-tint-slash"></i>
+                <input type="number" class="form-control" id="groundwater" required placeholder="Enter Groundwater Usage (MGD)">
+            </div>
+            <div class="form-group">
+                <label for="temperature">Temperature (°C):</label>
+                <i class="fas fa-thermometer-half"></i>
+                <input type="number" class="form-control" id="temperature" step="0.1" required placeholder="Enter Temperature (°C)">
+            </div>
+            <div class="form-group">
+                <label for="year">Year:</label>
+                <i class="fas fa-calendar-alt"></i>
+                <input type="number" class="form-control" id="year" min="2025" max="2050" required placeholder="Enter Year (2025-2050)">
+            </div>
+            <div class="form-group">
+                <label for="applyAdjustments" class="checkbox-label">
+                    <input type="checkbox" id="applyAdjustments" name="applyAdjustments">
+                    Apply Year-Based Adjustments?
+                </label>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Predict Scarcity</button>
+        </form>
+        <div id="result" class="alert" style="display: none;"></div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    document.getElementById('predictionForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const city = document.getElementById('city').value;
+        const rainfall = parseFloat(document.getElementById('rainfall').value);
+        const population = parseFloat(document.getElementById('population').value);
+        const demand = parseFloat(document.getElementById('demand').value);
+        const reservoir = parseFloat(document.getElementById('reservoir').value);
+        const groundwater = parseFloat(document.getElementById('groundwater').value);
+        const temperature = parseFloat(document.getElementById('temperature').value);
+        const year = parseInt(document.getElementById('year').value);
+        const applyAdjustments = document.getElementById('applyAdjustments').checked;
+
+        if (!city || isNaN(rainfall) || isNaN(population) || isNaN(demand) || 
+            isNaN(reservoir) || isNaN(groundwater) || isNaN(temperature) || isNaN(year)) {
+            alert('Please fill all fields with valid numbers!');
+            return;
+        }
+
+        const input_data = [rainfall, population, demand, reservoir, groundwater, temperature];
+        try {
+            const response = await fetch('http://127.0.0.1:5000/predict', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ city, input_data, year, applyAdjustments })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = `${year} ${city} Scarcity Prediction: ${result.prediction.toFixed(2)}%`;
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error predicting scarcity. Please try again.');
+        }
+    });
+    </script>
+</body>
+</html>
